@@ -1,0 +1,154 @@
+CREATE DATABASE CORONA;
+
+USE CORONA;
+
+CREATE TABLE COVID (
+Province varchar(50),
+Country_region varchar(50),
+Latitude float ,
+Longitude float,
+Date date,
+Confirmed int,
+Deaths int,
+Recovered int
+);
+
+-- write a code to check for Null values
+
+Select * from covid
+where province is null
+or Country_region is null
+or Latitude is null
+or longitude is null
+or date is null
+or confirmed is null
+or deaths is null
+or recovered is null;
+
+-- If Null values are present , update them with zeros for all columns
+
+UPDATE COVID
+SET 
+Province = coalesce(Province , 'NOT AVAILABLE'),
+Country_region = coalesce(Country_region , 'NOT AVAILABLE'),
+Latitude = coalesce(Latitude,0,0),
+Longitude = coalesce(Longitude,0.0),
+Date = coalesce(Date, '1970-01-01'),
+Confirmed = coalesce(Confirmed,0),
+Deaths = coalesce(deaths,0),
+Recovered = coalesce(recovered,0);
+
+-- Check total number of rows
+
+Select count(*) as total_rows
+from covid;
+
+-- Check what is start_date and what is the end_date
+
+Select min(date) as start_date , max(date) as end_date
+from covid;
+
+-- Number of month present in Dataset
+
+Select extract(month from date) as month_number , count(*) as month_count
+from covid
+group by month_number
+order by month_count;
+
+-- Find  monthly average for confirmed,deaths and recovered
+
+Select 
+extract(year from date) as year,
+extract(month from date) as month,
+round(avg(confirmed),2) as avg_confirmed_cases,
+round(avg(deaths),2) as avg_deaths_cases,
+round(avg(recovered),2) as avg_recovered_cases
+from covid
+group by year, month
+order by year, month;
+
+-- Find most frequent value for confirmed , deaths, recovered each month
+
+Select extract(year from date) as year,
+extract(month from date) as month,
+max(confirmed) as most_confirmed_cases,
+max(deaths) as most_deaths_cases,
+max(recovered) as most_recovered
+from covid
+group by year, month
+order by year , month;
+
+-- Find minimum values for confirmed, deaths, recovered per year
+
+Select 
+extract(year from date) as year,
+min(confirmed) as min_confirmed_values,
+min(deaths) as min_deaths_values,
+min(recovered) as min_recovered_values
+from covid 
+group by year
+order by year;
+
+-- Find maximum values for confirmed , deaths recovered per year
+
+Select 
+extract(year from date) as year,
+max(confirmed) as max_confirmed_values,
+max(deaths) as max_deaths_values,
+max(recovered) as max_recovered_values
+from covid 
+group by year
+order by year;
+
+-- Find total number of cases of confirmed . deaths, recovered each month
+
+Select extract(year from date) as year,
+extract(month from date ) as month,
+sum(confirmed) as total_confirmed,
+sum(deaths) as total_deaths,
+sum(recovered) as total_recovered
+from covid 
+group by year , month
+order by year , month;
+
+-- Check how corona virus spread out with respect to confirmed cases
+
+Select 
+sum(confirmed) as total_confirmed,
+round(avg(confirmed),2) as avg_confirmed
+from  covid;
+
+-- Check how corona virus spread out with respect to death case per month
+
+Select
+extract(year from date) as year,
+extract(month from date) as month,
+sum(deaths) as total_deaths,
+round(avg(deaths),2) as avg_death_cases
+from covid
+group by year , month
+order by year , month;
+
+-- Check how corona virus spread out with respect to recovered cases
+
+Select
+sum(recovered) as totl_recovered,
+round(avg(recovered),2) as avg_recovered_cases
+from covid;
+
+-- Find the country have highest number of confirmed cases
+
+Select country_region,
+sum(country) as total_confirmed_cases from covid
+group by country_region
+order by total_confirmed_cases desc
+limit 1;
+
+-- Find top 5 countries have highest recovered cases
+
+Select country_region , 
+sum(recovered) as total_recovered
+from covid
+group by country_region
+order by total_recovered desc
+limit 5;
